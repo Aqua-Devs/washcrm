@@ -61,7 +61,7 @@ def admin_required(f):
 # ─── PAGES ──────────────────────────────────────────────────────
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_file('templates/index.html')
 
 # ─── AUTH ROUTES ────────────────────────────────────────────────
 @app.route('/api/auth/register', methods=['POST'])
