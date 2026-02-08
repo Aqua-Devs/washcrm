@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <title>PressureFlow CRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════════════════════
+           CSS RESET & VARIABLES
+           ═══════════════════════════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-elevated: #f1f5f9;
+            --text: #0f172a;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --primary: #1d4ed8;
+            --primary-light: #3b82f6;
+            --primary-bg: #eff6ff;
+            --primary-border: #bfdbfe;
+            --success: #059669;
+            --success-bg: #ecfdf5;
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --border: #e2e8f0;
+            --border-strong: #cbd5e1;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 16px;
+            --font: 'DM Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --nav-height: 64px;
+            --bottom-nav: 72px;
+        }
+
+        html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           UTILITY CLASSES
+           ═══════════════════════════════════════════════════════════ */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-1 { gap: 4px; }
+        .gap-2 { gap: 8px; }
+        .gap-3 { gap: 12px; }
+        .gap-4 { gap: 16px; }
+        .w-full { width: 100%; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .text-muted { color: var(--text-secondary); }
+        .mt-2 { margin-top: 8px; }
+        .mt-3 { margin-top: 12px; }
+        .mt-4 { margin-top: 16px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-4 { margin-bottom: 16px; }
+        .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* ═══════════════════════════════════════════════════════════
+           AUTH SCREEN
+           ═══════════════════════════════════════════════════════════ */
+        #auth-screen {
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+        }
+        .auth-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .auth-logo span { color: var(--primary-light); }
+        .auth-subtitle { color: #94a3b8; margin-bottom: 32px; font-size: 0.95rem; }
+        .auth-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+        }
+        .auth-card h2 { font-size: 1.25rem; margin-bottom: 20px; text-align: center; }
+        .auth-toggle {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .auth-toggle a { color: var(--primary); cursor: pointer; font-weight: 600; }
+
+        /* ═══════════════════════════════════════════════════════════
+           MAIN APP LAYOUT
+           ═══════════════════════════════════════════════════════════ */
+        #app-shell { display: none; flex-direction: column; min-height: 100dvh; }
+        #app-shell.active { display: flex; }
+
+        /* Top Header */
+        .top-header {
+            height: var(--nav-height);
+            background: #0f172a;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .top-header .logo { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.3px; }
+        .top-header .logo span { color: var(--primary-light); }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .header-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+        }
+        .header-btn:hover { background: rgba(255,255,255,0.2); }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 16px;
+            padding-bottom: calc(var(--bottom-nav) + 16px);
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--bottom-nav);
+            background: #0f172a;
+            display: flex;
+            align-items: stretch;
+            justify-content: space-around;
+            z-index: 100;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.2);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.65rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        .nav-item .nav-icon { font-size: 1.35rem; line-height: 1; }
+        .nav-item.active { color: var(--primary-light); }
+        .nav-item:hover { color: #94a3b8; }
+
+        /* ═══════════════════════════════════════════════════════════
+           FORM ELEMENTS
+           ═══════════════════════════════════════════════════════════ */
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-size: 1rem;
+            color: var(--text);
+            background: var(--bg-card);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(29,78,216,0.15);
+        }
+        .form-input::placeholder { color: var(--text-muted); }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-select { cursor: pointer; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
+
+        /* ═══════════════════════════════════════════════════════════
+           BUTTONS
+           ═══════════════════════════════════════════════════════════ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            min-height: 52px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #1e40af; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { background: #047857; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary-border);
+        }
+        .btn-outline:hover { background: var(--primary-bg); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); }
+        .btn-ghost:hover { background: var(--bg-elevated); }
+        .btn-block { width: 100%; }
+        .btn-sm { padding: 10px 16px; font-size: 0.875rem; min-height: 42px; }
+        .btn-lg { padding: 16px 32px; font-size: 1.1rem; min-height: 56px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ═══════════════════════════════════════════════════════════
+           CARDS
+           ═══════════════════════════════════════════════════════════ */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .card-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            font-family: var(--font-mono);
+        }
+        .card-value.money::before { content: '€'; font-size: 1.2rem; margin-right: 2px; }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           LIST ITEMS
+           ═══════════════════════════════════════════════════════════ */
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .list-item:hover { border-color: var(--primary-border); box-shadow: var(--shadow-sm); }
+        .list-item:active { transform: scale(0.99); }
+        .list-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .list-content { flex: 1; min-width: 0; }
+        .list-title { font-weight: 600; font-size: 0.95rem; }
+        .list-subtitle { font-size: 0.8rem; color: var(--text-secondary); }
+        .list-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .badge-concept { background: var(--bg-elevated); color: var(--text-secondary); }
+        .badge-offerte { background: var(--primary-bg); color: var(--primary); }
+        .badge-akkoord { background: #fef3c7; color: #92400e; }
+        .badge-voltooid { background: var(--success-bg); color: var(--success); }
+        .badge-factuur { background: #ede9fe; color: #6d28d9; }
+        .badge-betaald { background: var(--success-bg); color: var(--success); }
+
+        /* ═══════════════════════════════════════════════════════════
+           PAGE HEADERS
+           ═══════════════════════════════════════════════════════════ */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .page-title { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.3px; }
+        .page-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            background: none;
+            border: none;
+            font-family: var(--font);
+            padding: 0;
+        }
+        .page-back:hover { color: var(--text); }
+
+        /* ═══════════════════════════════════════════════════════════
+           SEARCH BAR
+           ═══════════════════════════════════════════════════════════ */
+        .search-bar {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-size: 1rem;
+            background: var(--bg-card);
+        }
+        .search-bar input:focus { outline: none; border-color: var(--primary); }
+        .search-bar .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           REVENUE BAR CHART
+           ═══════════════════════════════════════════════════════════ */
+        .revenue-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 100px;
+            padding-top: 12px;
+        }
+        .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .chart-bar {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            min-height: 4px;
+            transition: height 0.6s ease;
+        }
+        .chart-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+
+        /* ═══════════════════════════════════════════════════════════
+           SMART ESTIMATOR
+           ═══════════════════════════════════════════════════════════ */
+        .estimator-line {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .estimator-line .line-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .estimator-line .line-name { font-weight: 600; }
+        .estimator-line .line-total {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .remove-line {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 4px;
+        }
+
+        .upsell-check {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .upsell-check:has(input:checked) {
+            border-color: var(--primary);
+            background: var(--primary-bg);
+        }
+        .upsell-check input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary);
+            flex-shrink: 0;
+        }
+        .upsell-check .upsell-name { flex: 1; font-weight: 500; }
+        .upsell-check .upsell-price {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Live Total Bar */
+        .live-total-bar {
+            position: fixed;
+            bottom: var(--bottom-nav);
+            left: 0;
+            right: 0;
+            background: #0f172a;
+            color: #fff;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 90;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+        }
+        .live-total-bar .total-label { font-size: 0.85rem; color: #94a3b8; }
+        .live-total-bar .total-amount {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .live-total-bar .total-btw { font-size: 0.75rem; color: #64748b; }
+
+        /* ═══════════════════════════════════════════════════════════
+           SIGNATURE PAD
+           ═══════════════════════════════════════════════════════════ */
+        .signature-container {
+            border: 2px dashed var(--border-strong);
+            border-radius: var(--radius);
+            background: #fff;
+            position: relative;
+            margin: 12px 0;
+        }
+        .signature-container canvas {
+            width: 100%;
+            height: 200px;
+            touch-action: none;
+        }
+        .signature-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           INVENTORY BARS
+           ═══════════════════════════════════════════════════════════ */
+        .inv-bar-wrapper { margin-top: 8px; }
+        .inv-bar {
+            height: 8px;
+            background: var(--bg-elevated);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .inv-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        .inv-bar-fill.ok { background: var(--success); }
+        .inv-bar-fill.warning { background: var(--warning); }
+        .inv-bar-fill.danger { background: var(--danger); }
+
+        /* ═══════════════════════════════════════════════════════════
+           PHOTO GRID
+           ═══════════════════════════════════════════════════════════ */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .photo-thumb {
+            aspect-ratio: 1;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 2px solid var(--border);
+            position: relative;
+            cursor: pointer;
+        }
+        .photo-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-thumb .photo-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 3px;
+            text-transform: uppercase;
+        }
+        .photo-add {
+            aspect-ratio: 1;
+            border: 2px dashed var(--border-strong);
+            border-radius: var(--radius-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .photo-add:hover { border-color: var(--primary); color: var(--primary); }
+        .photo-add .plus { font-size: 1.8rem; line-height: 1; }
+
+        /* ═══════════════════════════════════════════════════════════
+           MODAL / OVERLAY
+           ═══════════════════════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85dvh;
+            overflow-y: auto;
+            padding: 24px 20px 32px;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--border-strong);
+            border-radius: 2px;
+            margin: 0 auto 16px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           TOAST
+           ═══════════════════════════════════════════════════════════ */
+        .toast-container { position: fixed; top: 80px; right: 16px; z-index: 300; }
+        .toast {
+            background: #0f172a;
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+            max-width: 320px;
+        }
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* ═══════════════════════════════════════════════════════════
+           LOADING
+           ═══════════════════════════════════════════════════════════ */
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 40px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+        .empty-state .empty-text { font-size: 0.95rem; }
+
+        /* ═══════════════════════════════════════════════════════════
+           SECTION HEADERS
+           ═══════════════════════════════════════════════════════════ */
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 24px 0 12px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           QUICK ACTIONS GRID
+           ═══════════════════════════════════════════════════════════ */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 18px 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .quick-action:hover { border-color: var(--primary-border); background: var(--primary-bg); }
+        .quick-action:active { transform: scale(0.97); }
+        .quick-action .qa-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           TAB BAR
+           ═══════════════════════════════════════════════════════════ */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            font-family: var(--font);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { background: var(--bg-card); color: var(--text); box-shadow: var(--shadow-sm); }
+
+        /* ═══════════════════════════════════════════════════════════
+           SETTINGS
+           ═══════════════════════════════════════════════════════════ */
+        .settings-group {
+            margin-bottom: 24px;
+        }
+        .settings-group-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════
+         TOAST CONTAINER
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="toast-container" id="toasts"></div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         AUTH SCREEN
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="auth-screen">
+        <div class="auth-logo">Pressure<span>Flow</span></div>
+        <div class="auth-subtitle">CRM voor hogedrukreiniging</div>
+        <div class="auth-card">
+            <div id="login-form">
+                <h2>Inloggen</h2>
+                <div class="form-group">
+                    <label class="form-label">E-mailadres</label>
+                    <input type="email" class="form-input" id="login-email" placeholder="je@email.nl" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Wachtwoord</label>
+                    <input type="password" class="form-input" id="login-password" placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()">Inloggen</button>
+                <div class="auth-toggle">Nog geen account? <a onclick="showRegister()">Registreren</a></div>
+            </div>
+            <div id="register-form" class="hidden">
+                <h2>Account aanmaken</h2>
+                <div class="form-group">
+                    <label class="form-label">Naam</label>
+                    <input type="text" class="form-input" id="reg-name" placeholder="Jan de Vries">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-mailadres</label>
+                    <input type="email" class="form-input" id="reg-email" placeholder="je@email.nl">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Wachtwoord</label>
+                    <input type="password" class="form-input" id="reg-password" placeholder="Minimaal 6 tekens">
+                </div>
+                <button class="btn btn-primary btn-block btn-lg" onclick="doRegister()">Account aanmaken</button>
+                <div class="auth-toggle">Al een account? <a onclick="showLogin()">Inloggen</a></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         APP SHELL
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="app-shell">
+        <header class="top-header">
+            <div class="logo">Pressure<span>Flow</span></div>
+            <div class="header-actions">
+                <span id="user-name-display" style="font-size:0.8rem;color:#94a3b8;margin-right:4px"></span>
+                <button class="header-btn" onclick="doLogout()" title="Uitloggen">⏻</button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            <!-- Content injected dynamically -->
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" data-page="customers" onclick="navigate('customers')">
+                <span class="nav-icon">👥</span>
+                <span>Klanten</span>
+            </button>
+            <button class="nav-item" data-page="estimator" onclick="navigate('estimator')">
+                <span class="nav-icon">🧮</span>
+                <span>Meting</span>
+            </button>
+            <button class="nav-item" data-page="estimates" onclick="navigate('estimates')">
+                <span class="nav-icon">📋</span>
+                <span>Offertes</span>
+            </button>
+            <button class="nav-item" data-page="inventory" onclick="navigate('inventory')">
+                <span class="nav-icon">📦</span>
+                <span>Voorraad</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         MODAL CONTAINER
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="modal-root"></div>
+
+    <script>
+    /* ═══════════════════════════════════════════════════════════════
+       GLOBAL STATE & API HELPERS
+       ═══════════════════════════════════════════════════════════════ */
+    const API = '';  // same origin
+    let token = localStorage.getItem('pf_token') || '';
+    let currentUser = JSON.parse(localStorage.getItem('pf_user') || 'null');
+    let currentPage = 'dashboard';
+
+    // Cache
+    let cachedServices = [];
+    let cachedUpsells = [];
+    let cachedCustomers = [];
+
+    async function api(path, opts = {}) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        try {
+            const res = await fetch(`${API}${path}`, { ...opts, headers });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Fout opgetreden');
+            return data;
+        } catch (err) {
+            if (err.message.includes('Token')) { doLogout(); }
+            throw err;
+        }
+    }
+
+    function toast(msg, type = 'success') {
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.textContent = msg;
+        document.getElementById('toasts').appendChild(el);
+        setTimeout(() => el.remove(), 3000);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       AUTH
+       ═══════════════════════════════════════════════════════════════ */
+    function showLogin() {
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+    }
+    function showRegister() {
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+    }
+
+    async function doLogin() {
+        try {
+            const data = await api('/api/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: document.getElementById('login-email').value,
+                    password: document.getElementById('login-password').value
+                })
+            });
+            token = data.token;
+            currentUser = data.user;
+            localStorage.setItem('pf_token', token);
+            localStorage.setItem('pf_user', JSON.stringify(currentUser));
+            enterApp();
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    async function doRegister() {
+        try {
+            await api('/api/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: document.getElementById('reg-name').value,
+                    email: document.getElementById('reg-email').value,
+                    password: document.getElementById('reg-password').value
+                })
+            });
+            toast('Account aangemaakt! Je kunt nu inloggen.');
+            showLogin();
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    function doLogout() {
+        token = '';
+        currentUser = null;
+        localStorage.removeItem('pf_token');
+        localStorage.removeItem('pf_user');
+        document.getElementById('auth-screen').style.display = '';
+        document.getElementById('app-shell').classList.remove('active');
+    }
+
+    function enterApp() {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-shell').classList.add('active');
+        document.getElementById('user-name-display').textContent = currentUser?.name || '';
+        loadServices();
+        loadUpsells();
+        navigate('dashboard');
+    }
+
+    // Auto-login
+    if (token && currentUser) { enterApp(); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       NAVIGATION
+       ═══════════════════════════════════════════════════════════════ */
+    function navigate(page, params = {}) {
+        currentPage = page;
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+        
+        // Remove live total bar if not on estimator
+        const ltb = document.querySelector('.live-total-bar');
+        if (ltb && page !== 'estimator' && page !== 'estimate-detail') ltb.remove();
+
+        const renderers = {
+            dashboard: renderDashboard,
+            customers: renderCustomers,
+            estimator: () => renderEstimator(params),
+            estimates: renderEstimates,
+            inventory: renderInventory,
+            'customer-detail': () => renderCustomerDetail(params.id),
+            'customer-form': () => renderCustomerForm(params.customer),
+            'estimate-detail': () => renderEstimateDetail(params.id),
+            settings: renderSettings,
+        };
+
+        const render = renderers[page];
+        if (render) render();
+    }
+
+    async function loadServices() {
+        try { cachedServices = await api('/api/services'); } catch (e) {}
+    }
+    async function loadUpsells() {
+        try { cachedUpsells = await api('/api/upsells'); } catch (e) {}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       DASHBOARD
+       ═══════════════════════════════════════════════════════════════ */
+    async function renderDashboard() {
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = '<div class="spinner"></div>';
+
+        try {
+            const d = await api('/api/dashboard');
+            const maxRev = Math.max(d.month_revenue, d.last_month_revenue, 1);
+
+            mc.innerHTML = `
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    ${d.is_admin ? '<button class="btn btn-ghost btn-sm" onclick="navigate(\'settings\')">⚙️ Instellingen</button>' : ''}
+                </div>
+
+                <div class="stat-grid">
+                    <div class="card">
+                        <div class="card-title">Omzet deze maand</div>
+                        <div class="card-value money">${d.month_revenue.toFixed(0)}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Openstaande offertes</div>
+                        <div class="card-value">${d.open_quotes_count}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Klanten totaal</div>
+                        <div class="card-value">${d.customer_count}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Omzet vorige maand</div>
+                        <div class="card-value money">${d.last_month_revenue.toFixed(0)}</div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-title">Omzetvergelijking</div>
+                    <div class="revenue-chart">
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height:${(d.last_month_revenue/maxRev)*80}px;background:var(--border-strong)"></div>
+                            <span class="chart-label">Vorig</span>
+                        </div>
+                        <div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height:${(d.month_revenue/maxRev)*80}px;background:var(--primary)"></div>
+                            <span class="chart-label">Huidig</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Snelkoppelingen</div>
+                <div class="quick-actions">
+                    <button class="quick-action" onclick="navigate('estimator')">
+                        <div class="qa-icon" style="background:#eff6ff;color:#1d4ed8">🧮</div>
+                        Nieuwe Meting
+                    </button>
+                    <button class="quick-action" onclick="navigate('customers')">
+                        <div class="qa-icon" style="background:#ecfdf5;color:#059669">👤</div>
+                        Nieuwe Klant
+                    </button>
+                    <button class="quick-action" onclick="navigate('inventory')">
+                        <div class="qa-icon" style="background:#fffbeb;color:#d97706">📦</div>
+                        Voorraad Check
+                    </button>
+                </div>
+
+                ${d.inventory_warnings.length > 0 ? `
+                    <div class="section-title">⚠️ Voorraadwaarschuwingen</div>
+                    ${d.inventory_warnings.map(i => `
+                        <div class="list-item" onclick="navigate('inventory')">
+                            <div class="list-icon" style="background:var(--danger-bg);color:var(--danger)">⚠️</div>
+                            <div class="list-content">
+                                <div class="list-title">${i.item_name}</div>
+                                <div class="list-subtitle">Nog ${i.quantity_on_hand} ${i.unit} (minimum: ${i.threshold_warning})</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                ` : ''}
+
+                ${d.today_jobs.length > 0 ? `
+                    <div class="section-title">📅 Geplande klussen</div>
+                    ${d.today_jobs.map(j => `
+                        <div class="list-item" onclick="navigate('estimate-detail', {id:'${j.id}'})">
+                            <div class="list-icon" style="background:#fef3c7;color:#92400e">🔧</div>
+                            <div class="list-content">
+                                <div class="list-title">${j.customers?.name || 'Klant'}</div>
+                                <div class="list-subtitle">${j.customers?.address || ''}</div>
+                            </div>
+                            <div class="list-badge badge-akkoord">Akkoord</div>
+                        </div>
+                    `).join('')}
+                ` : ''}
+            `;
+        } catch (e) {
+            mc.innerHTML = `<div class="empty-state"><div class="empty-icon">😵</div><div class="empty-text">Kon dashboard niet laden: ${e.message}</div></div>`;
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CUSTOMERS
+       ═══════════════════════════════════════════════════════════════ */
+    async function renderCustomers() {
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">Klanten</h1>
+                <button class="btn btn-primary btn-sm" onclick="navigate('customer-form', {})">+ Nieuw</button>
+            </div>
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="customer-search" placeholder="Zoek klant..." oninput="searchCustomers()">
+            </div>
+            <div id="customer-list"><div class="spinner"></div></div>
+        `;
+        searchCustomers();
+    }
+
+    async function searchCustomers() {
+        const search = document.getElementById('customer-search')?.value || '';
+        const list = document.getElementById('customer-list');
+        try {
+            const customers = await api(`/api/customers?search=${encodeURIComponent(search)}`);
+            cachedCustomers = customers;
+            if (customers.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">Geen klanten gevonden</div></div>';
+                return;
+            }
+            list.innerHTML = customers.map(c => `
+                <div class="list-item" onclick="navigate('customer-detail', {id:'${c.id}'})">
+                    <div class="list-icon" style="background:var(--primary-bg);color:var(--primary)">👤</div>
+                    <div class="list-content">
+                        <div class="list-title">${c.name}</div>
+                        <div class="list-subtitle truncate">${c.address || 'Geen adres'}</div>
+                    </div>
+                    ${c.phone ? `<a href="https://wa.me/${c.phone.replace(/[^0-9+]/g,'')}" onclick="event.stopPropagation()" style="font-size:1.2rem;text-decoration:none">💬</a>` : ''}
+                </div>
+            `).join('');
+        } catch (e) {
+            list.innerHTML = `<div class="empty-state"><div class="empty-text">${e.message}</div></div>`;
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CUSTOMER DETAIL
+       ═══════════════════════════════════════════════════════════════ */
+    async function renderCustomerDetail(id) {
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = '<div class="spinner"></div>';
+        try {
+            const c = await api(`/api/customers/${id}`);
+            mc.innerHTML = `
+                <button class="page-back" onclick="navigate('customers')">← Terug</button>
+                <div class="page-header">
+                    <h1 class="page-title">${c.name}</h1>
+                    <button class="btn btn-outline btn-sm" onclick="navigate('customer-form', {customer: ${JSON.stringify(c).replace(/"/g, '&quot;')}})">Bewerken</button>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-title">Contactgegevens</div>
+                    <div style="display:grid;gap:8px;margin-top:8px">
+                        ${c.address ? `<div class="flex items-center gap-2"><span>📍</span><span>${c.address}</span></div>` : ''}
+                        ${c.phone ? `<div class="flex items-center gap-2"><span>📞</span><a href="tel:${c.phone}" style="color:var(--primary)">${c.phone}</a> <a href="https://wa.me/${c.phone.replace(/[^0-9+]/g,'')}" style="font-size:0.8rem">💬 WhatsApp</a></div>` : ''}
+                        ${c.email ? `<div class="flex items-center gap-2"><span>✉️</span><a href="mailto:${c.email}" style="color:var(--primary)">${c.email}</a></div>` : ''}
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-title">Property Profiel</div>
+                    <div style="display:grid;gap:8px;margin-top:8px">
+                        <div><strong>Parkeren:</strong> ${{'oprit':'Oprit','straat':'Straat','vergunning':'Vergunning nodig'}[c.parking_situation] || '-'}</div>
+                        <div><strong>Buitenkraan:</strong> ${c.water_tap_location || '-'}</div>
+                        <div><strong>Waterdruk:</strong> ${c.water_pressure_lpm ? c.water_pressure_lpm + ' L/min' : '-'}</div>
+                        ${c.notes ? `<div><strong>Notities:</strong> ${c.notes}</div>` : ''}
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mb-4">
+                    <button class="btn btn-primary btn-block" onclick="navigate('estimator', {customer_id:'${c.id}', customer_name:'${c.name}'})">🧮 Nieuwe Meting</button>
+                </div>
+
+                <div class="section-title">Offertes & Projecten</div>
+                ${c.estimates && c.estimates.length > 0 ? c.estimates.map(e => `
+                    <div class="list-item" onclick="navigate('estimate-detail', {id:'${e.id}'})">
+                        <div class="list-content">
+                            <div class="list-title">€${parseFloat(e.total_incl_btw).toFixed(2)}</div>
+                            <div class="list-subtitle">${new Date(e.created_at).toLocaleDateString('nl-NL')}</div>
+                        </div>
+                        <div class="list-badge badge-${e.status}">${e.status}</div>
+                    </div>
+                `).join('') : '<div class="empty-state"><div class="empty-text">Nog geen offertes</div></div>'}
+
+                <button class="btn btn-danger btn-outline btn-block btn-sm mt-4" onclick="deleteCustomer('${c.id}')">🗑️ Klant verwijderen</button>
+            `;
+        } catch (e) {
+            mc.innerHTML = `<div class="empty-state"><div class="empty-text">${e.message}</div></div>`;
+        }
+    }
+
+    async function deleteCustomer(id) {
+        if (!confirm('Weet je zeker dat je deze klant wilt verwijderen?')) return;
+        try {
+            await api(`/api/customers/${id}`, { method: 'DELETE' });
+            toast('Klant verwijderd');
+            navigate('customers');
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CUSTOMER FORM
+       ═══════════════════════════════════════════════════════════════ */
+    function renderCustomerForm(customer) {
+        const isEdit = customer && customer.id;
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = `
+            <button class="page-back" onclick="navigate('customers')">← Terug</button>
+            <h1 class="page-title mb-4">${isEdit ? 'Klant bewerken' : 'Nieuwe klant'}</h1>
+
+            <div class="form-group">
+                <label class="form-label">Naam *</label>
+                <input type="text" class="form-input" id="cf-name" value="${customer?.name || ''}" placeholder="Volledige naam">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Adres</label>
+                <input type="text" class="form-input" id="cf-address" value="${customer?.address || ''}" placeholder="Straat 123, Stad">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Telefoon</label>
+                    <input type="tel" class="form-input" id="cf-phone" value="${customer?.phone || ''}" placeholder="+31612345678">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-mail</label>
+                    <input type="email" class="form-input" id="cf-email" value="${customer?.email || ''}" placeholder="klant@email.nl">
+                </div>
+            </div>
+
+            <div class="section-title">Property Profiel</div>
+            <div class="form-group">
+                <label class="form-label">Parkeersituatie</label>
+                <select class="form-select" id="cf-parking">
+                    <option value="oprit" ${customer?.parking_situation === 'oprit' ? 'selected' : ''}>Oprit</option>
+                    <option value="straat" ${customer?.parking_situation === 'straat' ? 'selected' : ''}>Straat</option>
+                    <option value="vergunning" ${customer?.parking_situation === 'vergunning' ? 'selected' : ''}>Vergunning nodig</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Locatie buitenkraan</label>
+                    <input type="text" class="form-input" id="cf-watertap" value="${customer?.water_tap_location || ''}" placeholder="Bijv. achterzijde">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Waterdruk (L/min)</label>
+                    <input type="number" class="form-input" id="cf-pressure" value="${customer?.water_pressure_lpm || ''}" placeholder="0" step="0.1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Notities</label>
+                <textarea class="form-textarea" id="cf-notes" placeholder="Overige opmerkingen...">${customer?.notes || ''}</textarea>
+            </div>
+
+            <button class="btn btn-primary btn-block btn-lg" onclick="saveCustomer('${customer?.id || ''}')">${isEdit ? 'Opslaan' : 'Klant toevoegen'}</button>
+        `;
+    }
+
+    async function saveCustomer(id) {
+        const data = {
+            name: document.getElementById('cf-name').value,
+            address: document.getElementById('cf-address').value,
+            phone: document.getElementById('cf-phone').value,
+            email: document.getElementById('cf-email').value,
+            parking_situation: document.getElementById('cf-parking').value,
+            water_tap_location: document.getElementById('cf-watertap').value,
+            water_pressure_lpm: parseFloat(document.getElementById('cf-pressure').value) || 0,
+            notes: document.getElementById('cf-notes').value
+        };
+        if (!data.name) { toast('Naam is verplicht', 'error'); return; }
+
+        try {
+            if (id) {
+                await api(`/api/customers/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+                toast('Klant bijgewerkt');
+                navigate('customer-detail', { id });
+            } else {
+                const result = await api('/api/customers', { method: 'POST', body: JSON.stringify(data) });
+                toast('Klant toegevoegd');
+                navigate('customer-detail', { id: result.id });
+            }
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SMART ESTIMATOR
+       ═══════════════════════════════════════════════════════════════ */
+    let estimatorLines = [];
+    let estimatorUpsells = [];
+    let estimatorCustomerId = '';
+
+    function renderEstimator(params = {}) {
+        estimatorLines = [];
+        estimatorUpsells = [];
+        estimatorCustomerId = params.customer_id || '';
+
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = `
+            <button class="page-back" onclick="navigate('dashboard')">← Terug</button>
+            <h1 class="page-title mb-4">🧮 Nieuwe Meting</h1>
+
+            <div class="form-group">
+                <label class="form-label">Klant *</label>
+                ${estimatorCustomerId ? `
+                    <div class="form-input" style="background:var(--primary-bg);border-color:var(--primary-border);color:var(--primary);font-weight:600">
+                        ${params.customer_name || 'Geselecteerd'}
+                        <input type="hidden" id="est-customer" value="${estimatorCustomerId}">
+                    </div>
+                ` : `
+                    <select class="form-select" id="est-customer" onchange="estimatorCustomerId=this.value">
+                        <option value="">-- Selecteer klant --</option>
+                    </select>
+                `}
+            </div>
+
+            <div class="section-title">Diensten</div>
+            <div id="estimator-lines"></div>
+
+            <div class="flex gap-2 mb-4">
+                <select class="form-select" id="add-service-select" style="flex:1">
+                    ${cachedServices.map(s => `<option value="${s.id}">${s.name} (€${parseFloat(s.price_per_unit).toFixed(2)}/${s.unit_type})</option>`).join('')}
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="addEstimatorLine()">+ Toevoegen</button>
+            </div>
+
+            <div class="section-title">Upsells</div>
+            <div id="estimator-upsells">
+                ${cachedUpsells.map(u => `
+                    <label class="upsell-check">
+                        <input type="checkbox" data-id="${u.id}" data-name="${u.name}" data-price="${u.price}" onchange="toggleUpsell(this)">
+                        <span class="upsell-name">${u.name}</span>
+                        <span class="upsell-price">€${parseFloat(u.price).toFixed(2)}</span>
+                    </label>
+                `).join('')}
+            </div>
+
+            <div class="form-group mt-4">
+                <label class="form-label">Opmerkingen</label>
+                <textarea class="form-textarea" id="est-notes" placeholder="Bijzonderheden..."></textarea>
+            </div>
+
+            <div style="height:80px"></div>
+
+            <div class="live-total-bar">
+                <div>
+                    <div class="total-label">Totaal incl. BTW</div>
+                    <div class="total-btw">Excl: €<span id="est-excl">0.00</span></div>
+                </div>
+                <div>
+                    <div class="total-amount">€<span id="est-total">0.00</span></div>
+                    <button class="btn btn-success btn-sm" onclick="saveEstimate()" style="margin-top:4px">💾 Opslaan</button>
+                </div>
+            </div>
+        `;
+
+        // Load customers into dropdown if not pre-selected
+        if (!estimatorCustomerId) {
+            loadCustomerDropdown();
+        }
+    }
+
+    async function loadCustomerDropdown() {
+        try {
+            const customers = await api('/api/customers');
+            const sel = document.getElementById('est-customer');
+            if (sel && sel.tagName === 'SELECT') {
+                customers.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = `${c.name} — ${c.address || ''}`;
+                    sel.appendChild(opt);
+                });
+            }
+        } catch (e) {}
+    }
+
+    function addEstimatorLine() {
+        const sel = document.getElementById('add-service-select');
+        const serviceId = sel.value;
+        const service = cachedServices.find(s => s.id === serviceId);
+        if (!service) return;
+
+        estimatorLines.push({
+            service_id: service.id,
+            description: service.name,
+            unit_price: parseFloat(service.price_per_unit),
+            square_meters: 0,
+            pollution_level: 'standaard',
+            multiplier: 1.0,
+            heavy_multiplier: parseFloat(service.heavy_multiplier) || 1.3
+        });
+        renderEstimatorLines();
+    }
+
+    function renderEstimatorLines() {
+        const container = document.getElementById('estimator-lines');
+        container.innerHTML = estimatorLines.map((line, i) => `
+            <div class="estimator-line">
+                <div class="line-header">
+                    <span class="line-name">${line.description}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="line-total">€${(line.square_meters * line.unit_price * line.multiplier).toFixed(2)}</span>
+                        <button class="remove-line" onclick="removeEstimatorLine(${i})">✕</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Oppervlakte (m²)</label>
+                        <input type="number" class="form-input" value="${line.square_meters}" step="0.1" min="0"
+                            oninput="updateEstimatorLine(${i}, 'square_meters', this.value)">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Vervuilingsgraad</label>
+                        <select class="form-select" onchange="updateEstimatorLine(${i}, 'pollution_level', this.value)">
+                            <option value="standaard" ${line.pollution_level === 'standaard' ? 'selected' : ''}>Standaard (1x)</option>
+                            <option value="zwaar" ${line.pollution_level === 'zwaar' ? 'selected' : ''}>Zwaar (${line.heavy_multiplier}x)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        updateEstimatorTotal();
+    }
+
+    function updateEstimatorLine(idx, field, value) {
+        const line = estimatorLines[idx];
+        if (field === 'square_meters') {
+            line.square_meters = parseFloat(value) || 0;
+        } else if (field === 'pollution_level') {
+            line.pollution_level = value;
+            line.multiplier = value === 'zwaar' ? line.heavy_multiplier : 1.0;
+        }
+        // Update line total display
+        const lineEls = document.querySelectorAll('.estimator-line');
+        if (lineEls[idx]) {
+            lineEls[idx].querySelector('.line-total').textContent = `€${(line.square_meters * line.unit_price * line.multiplier).toFixed(2)}`;
+        }
+        updateEstimatorTotal();
+    }
+
+    function removeEstimatorLine(idx) {
+        estimatorLines.splice(idx, 1);
+        renderEstimatorLines();
+    }
+
+    function toggleUpsell(checkbox) {
+        const id = checkbox.dataset.id;
+        if (checkbox.checked) {
+            estimatorUpsells.push({
+                upsell_item_id: id,
+                description: checkbox.dataset.name,
+                price: parseFloat(checkbox.dataset.price)
+            });
+        } else {
+            estimatorUpsells = estimatorUpsells.filter(u => u.upsell_item_id !== id);
+        }
+        updateEstimatorTotal();
+    }
+
+    function updateEstimatorTotal() {
+        let subtotal = 0;
+        estimatorLines.forEach(l => subtotal += l.square_meters * l.unit_price * l.multiplier);
+        estimatorUpsells.forEach(u => subtotal += u.price);
+        const total = subtotal * 1.21;
+        document.getElementById('est-excl').textContent = subtotal.toFixed(2);
+        document.getElementById('est-total').textContent = total.toFixed(2);
+    }
+
+    async function saveEstimate() {
+        const customerId = document.getElementById('est-customer')?.value || estimatorCustomerId;
+        if (!customerId) { toast('Selecteer een klant', 'error'); return; }
+        if (estimatorLines.length === 0) { toast('Voeg minimaal één dienst toe', 'error'); return; }
+
+        try {
+            const result = await api('/api/estimates', {
+                method: 'POST',
+                body: JSON.stringify({
+                    customer_id: customerId,
+                    status: 'offerte',
+                    lines: estimatorLines,
+                    upsells: estimatorUpsells,
+                    notes: document.getElementById('est-notes')?.value || ''
+                })
+            });
+            toast('Offerte aangemaakt!');
+            navigate('estimate-detail', { id: result.id });
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       ESTIMATES LIST
+       ═══════════════════════════════════════════════════════════════ */
+    async function renderEstimates() {
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">Offertes & Facturen</h1>
+            </div>
+            <div class="tab-bar" id="est-tabs">
+                <button class="tab-btn active" onclick="filterEstimates('')">Alle</button>
+                <button class="tab-btn" onclick="filterEstimates('offerte')">Offerte</button>
+                <button class="tab-btn" onclick="filterEstimates('akkoord')">Akkoord</button>
+                <button class="tab-btn" onclick="filterEstimates('voltooid')">Voltooid</button>
+            </div>
+            <div id="estimates-list"><div class="spinner"></div></div>
+        `;
+        filterEstimates('');
+    }
+
+    async function filterEstimates(status) {
+        // Update tab active state
+        document.querySelectorAll('#est-tabs .tab-btn').forEach(btn => {
+            btn.classList.toggle('active', 
+                (status === '' && btn.textContent === 'Alle') || 
+                btn.textContent.toLowerCase() === status
+            );
+        });
+
+        const list = document.getElementById('estimates-list');
+        try {
+            const estimates = await api(`/api/estimates${status ? `?status=${status}` : ''}`);
+            if (estimates.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Geen offertes gevonden</div></div>';
+                return;
+            }
+            list.innerHTML = estimates.map(e => `
+                <div class="list-item" onclick="navigate('estimate-detail', {id:'${e.id}'})">
+                    <div class="list-content">
+                        <div class="list-title">${e.customers?.name || 'Onbekend'}</div>
+                        <div class="list-subtitle">${e.customers?.address || ''} · ${new Date(e.created_at).toLocaleDateString('nl-NL')}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-semibold" style="font-family:var(--font-mono)">€${parseFloat(e.total_incl_btw).toFixed(2)}</div>
+                        <div class="list-badge badge-${e.status}">${e.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            list.innerHTML = `<div class="empty-state"><div class="empty-text">${e.message}</div></div>`;
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       ESTIMATE DETAIL
+       ═══════════════════════════════════════════════════════════════ */
+    async function renderEstimateDetail(id) {
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = '<div class="spinner"></div>';
+
+        try {
+            const e = await api(`/api/estimates/${id}`);
+            const customer = e.customers || {};
+            const statusFlow = ['concept', 'offerte', 'akkoord', 'voltooid', 'factuur', 'betaald'];
+            const nextStatus = statusFlow[statusFlow.indexOf(e.status) + 1];
+
+            mc.innerHTML = `
+                <button class="page-back" onclick="navigate('estimates')">← Terug</button>
+                <div class="page-header">
+                    <h1 class="page-title">Offerte</h1>
+                    <div class="list-badge badge-${e.status}" style="font-size:0.85rem;padding:6px 14px">${e.status.toUpperCase()}</div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-title">Klant</div>
+                    <div class="list-title" style="margin-top:4px">${customer.name || '-'}</div>
+                    <div class="list-subtitle">${customer.address || ''}</div>
+                    ${customer.phone ? `<div class="mt-2"><a href="tel:${customer.phone}" style="color:var(--primary)">📞 ${customer.phone}</a></div>` : ''}
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-title">Werkzaamheden</div>
+                    ${e.lines.map(l => `
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                            <div>
+                                <div class="font-semibold">${l.description}</div>
+                                <div class="text-sm text-muted">${l.square_meters} m² × €${parseFloat(l.unit_price).toFixed(2)} ${l.pollution_level === 'zwaar' ? '× 1.3 (zwaar)' : ''}</div>
+                            </div>
+                            <div class="font-semibold" style="font-family:var(--font-mono)">€${parseFloat(l.line_total).toFixed(2)}</div>
+                        </div>
+                    `).join('')}
+                    ${e.upsells.map(u => `
+                        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                            <div class="font-semibold">${u.description}</div>
+                            <div class="font-semibold" style="font-family:var(--font-mono)">€${parseFloat(u.price).toFixed(2)}</div>
+                        </div>
+                    `).join('')}
+                    <div style="margin-top:12px;text-align:right">
+                        <div class="text-sm text-muted">Subtotaal: €${parseFloat(e.subtotal).toFixed(2)}</div>
+                        <div class="text-sm text-muted">BTW (${e.btw_percentage}%): €${(parseFloat(e.subtotal) * parseFloat(e.btw_percentage) / 100).toFixed(2)}</div>
+                        <div class="font-bold" style="font-size:1.3rem;font-family:var(--font-mono);color:var(--primary);margin-top:4px">€${parseFloat(e.total_incl_btw).toFixed(2)}</div>
+                    </div>
+                </div>
+
+                ${e.notes ? `<div class="card mb-4"><div class="card-title">Opmerkingen</div><p style="margin-top:4px">${e.notes}</p></div>` : ''}
+
+                <!-- PHOTOS -->
+                <div class="card mb-4">
+                    <div class="card-title">📷 Foto's</div>
+                    <div class="photo-grid" id="photo-grid-${id}">
+                        ${(e.photos || []).map(p => `
+                            <div class="photo-thumb" onclick="viewPhoto('${p.id}')">
+                                <div class="photo-label">${p.photo_type}</div>
+                            </div>
+                        `).join('')}
+                        <div class="photo-add" onclick="uploadPhoto('${id}', '${customer.id || ''}', 'voor')">
+                            <span class="plus">+</span>
+                            <span>Voor</span>
+                        </div>
+                        <div class="photo-add" onclick="uploadPhoto('${id}', '${customer.id || ''}', 'na')">
+                            <span class="plus">+</span>
+                            <span>Na</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIGNATURE -->
+                ${e.status === 'offerte' ? `
+                    <div class="card mb-4">
+                        <div class="card-title">✍️ Handtekening klant</div>
+                        <div class="signature-container">
+                            <canvas id="sig-canvas"></canvas>
+                            <div class="signature-hint" id="sig-hint">Teken hier</div>
+                        </div>
+                        <div class="flex gap-2 mt-2">
+                            <button class="btn btn-ghost btn-sm" onclick="clearSignature()">Wissen</button>
+                            <button class="btn btn-success btn-block btn-sm" onclick="submitSignature('${id}')">✅ Akkoord & Tekenen</button>
+                        </div>
+                    </div>
+                ` : ''}
+
+                ${e.signature_data ? `
+                    <div class="card mb-4">
+                        <div class="card-title">✅ Handtekening</div>
+                        <img src="${e.signature_data}" style="max-width:100%;height:auto;margin-top:8px;border:1px solid var(--border);border-radius:var(--radius-sm)">
+                    </div>
+                ` : ''}
+
+                <!-- ACTIONS -->
+                <div style="display:grid;gap:8px;margin-top:16px">
+                    <a href="/api/estimates/${id}/pdf" target="_blank" class="btn btn-outline btn-block" onclick="event.target.href='/api/estimates/${id}/pdf?token='+token">📄 PDF Downloaden</a>
+
+                    ${e.status === 'akkoord' ? `
+                        <button class="btn btn-success btn-block btn-lg" onclick="completeEstimate('${id}')">✅ Klus Voltooid</button>
+                    ` : ''}
+                    ${e.status === 'voltooid' ? `
+                        <button class="btn btn-primary btn-block" onclick="changeStatus('${id}', 'factuur')">📨 Omzetten naar Factuur</button>
+                    ` : ''}
+                    ${e.status === 'factuur' ? `
+                        <button class="btn btn-success btn-block" onclick="changeStatus('${id}', 'betaald')">💰 Markeer als Betaald</button>
+                    ` : ''}
+                </div>
+
+                <div style="height:20px"></div>
+            `;
+
+            // Init signature pad
+            if (e.status === 'offerte') {
+                setTimeout(initSignaturePad, 100);
+            }
+
+            // Fix PDF link auth
+            document.querySelectorAll('a[href*="/pdf"]').forEach(a => {
+                const originalHref = a.getAttribute('href').split('?')[0];
+                a.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    window.open(`${originalHref}?token=${token}`, '_blank');
+                });
+            });
+
+        } catch (e) {
+            mc.innerHTML = `<div class="empty-state"><div class="empty-text">${e.message}</div></div>`;
+        }
+    }
+
+    // Fix PDF route to accept token as query param
+    async function changeStatus(id, status) {
+        try {
+            await api(`/api/estimates/${id}`, { method: 'PUT', body: JSON.stringify({ status }) });
+            toast(`Status gewijzigd naar ${status}`);
+            navigate('estimate-detail', { id });
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    async function completeEstimate(id) {
+        if (!confirm('Klus voltooien? Voorraad wordt automatisch bijgewerkt.')) return;
+        try {
+            await api(`/api/estimates/${id}/complete`, { method: 'POST' });
+            toast('Klus voltooid! Voorraad bijgewerkt.');
+            navigate('estimate-detail', { id });
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SIGNATURE PAD
+       ═══════════════════════════════════════════════════════════════ */
+    let sigCanvas, sigCtx, sigDrawing = false;
+
+    function initSignaturePad() {
+        sigCanvas = document.getElementById('sig-canvas');
+        if (!sigCanvas) return;
+        sigCtx = sigCanvas.getContext('2d');
+        
+        const rect = sigCanvas.parentElement.getBoundingClientRect();
+        sigCanvas.width = rect.width;
+        sigCanvas.height = 200;
+        
+        sigCtx.strokeStyle = '#0f172a';
+        sigCtx.lineWidth = 3;
+        sigCtx.lineCap = 'round';
+        sigCtx.lineJoin = 'round';
+
+        sigCanvas.addEventListener('pointerdown', sigStart);
+        sigCanvas.addEventListener('pointermove', sigMove);
+        sigCanvas.addEventListener('pointerup', sigEnd);
+        sigCanvas.addEventListener('pointerleave', sigEnd);
+    }
+
+    function sigStart(e) {
+        sigDrawing = true;
+        document.getElementById('sig-hint')?.remove();
+        const rect = sigCanvas.getBoundingClientRect();
+        sigCtx.beginPath();
+        sigCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    function sigMove(e) {
+        if (!sigDrawing) return;
+        const rect = sigCanvas.getBoundingClientRect();
+        sigCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        sigCtx.stroke();
+    }
+
+    function sigEnd() { sigDrawing = false; }
+
+    function clearSignature() {
+        if (sigCtx && sigCanvas) {
+            sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+        }
+    }
+
+    async function submitSignature(estimateId) {
+        if (!sigCanvas) return;
+        const data = sigCanvas.toDataURL('image/png');
+        // Check if anything was drawn
+        const blank = document.createElement('canvas');
+        blank.width = sigCanvas.width;
+        blank.height = sigCanvas.height;
+        if (sigCanvas.toDataURL() === blank.toDataURL()) {
+            toast('Laat de klant eerst tekenen', 'error');
+            return;
+        }
+        try {
+            await api(`/api/estimates/${estimateId}/sign`, {
+                method: 'POST',
+                body: JSON.stringify({ signature: data })
+            });
+            toast('Offerte geaccepteerd!');
+            navigate('estimate-detail', { id: estimateId });
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PHOTO UPLOAD
+       ═══════════════════════════════════════════════════════════════ */
+    function uploadPhoto(estimateId, customerId, photoType) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                try {
+                    await api(`/api/estimates/${estimateId}/photos`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            customer_id: customerId,
+                            photo_type: photoType,
+                            photo_data: ev.target.result,
+                            caption: ''
+                        })
+                    });
+                    toast('Foto geüpload!');
+                    navigate('estimate-detail', { id: estimateId });
+                } catch (err) { toast(err.message, 'error'); }
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }
+
+    async function viewPhoto(photoId) {
+        try {
+            const p = await api(`/api/photos/${photoId}`);
+            showModal(`
+                <img src="${p.photo_data}" style="width:100%;border-radius:var(--radius-sm)">
+                <div class="flex justify-between items-center mt-3">
+                    <span class="list-badge badge-${p.photo_type === 'voor' ? 'offerte' : 'voltooid'}">${p.photo_type}</span>
+                    <button class="btn btn-danger btn-sm" onclick="deletePhoto('${photoId}', '${p.estimate_id}')">🗑️ Verwijderen</button>
+                </div>
+            `);
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    async function deletePhoto(photoId, estimateId) {
+        try {
+            await api(`/api/photos/${photoId}`, { method: 'DELETE' });
+            toast('Foto verwijderd');
+            closeModal();
+            navigate('estimate-detail', { id: estimateId });
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       INVENTORY
+       ═══════════════════════════════════════════════════════════════ */
+    async function renderInventory() {
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = '<div class="spinner"></div>';
+
+        try {
+            const items = await api('/api/inventory');
+            mc.innerHTML = `
+                <div class="page-header">
+                    <h1 class="page-title">Voorraad</h1>
+                    ${currentUser?.role === 'admin' ? '<button class="btn btn-primary btn-sm" onclick="showAddInventory()">+ Nieuw</button>' : ''}
+                </div>
+                ${items.map(item => {
+                    const qty = parseFloat(item.quantity_on_hand);
+                    const threshold = parseFloat(item.threshold_warning);
+                    const maxQty = Math.max(qty, threshold * 4, 20);
+                    const pct = Math.min((qty / maxQty) * 100, 100);
+                    const status = qty <= threshold ? (qty <= threshold / 2 ? 'danger' : 'warning') : 'ok';
+                    return `
+                        <div class="card mb-2" onclick="${currentUser?.role === 'admin' ? `showAdjustInventory('${item.id}', '${item.item_name}', ${qty}, '${item.unit}')` : ''}">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="list-title">${item.item_name}</div>
+                                    <div class="text-sm text-muted">Min: ${threshold} ${item.unit}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold" style="font-family:var(--font-mono);font-size:1.2rem;color:${status === 'danger' ? 'var(--danger)' : status === 'warning' ? 'var(--warning)' : 'var(--text)'}">
+                                        ${qty} <span class="text-sm font-semibold text-muted">${item.unit}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="inv-bar-wrapper">
+                                <div class="inv-bar">
+                                    <div class="inv-bar-fill ${status}" style="width:${pct}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            `;
+        } catch (e) {
+            mc.innerHTML = `<div class="empty-state"><div class="empty-text">${e.message}</div></div>`;
+        }
+    }
+
+    function showAdjustInventory(id, name, currentQty, unit) {
+        showModal(`
+            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">${name}</h2>
+            <div class="text-sm text-muted mb-4">Huidig: ${currentQty} ${unit}</div>
+            <div class="form-group">
+                <label class="form-label">Aantal aanpassen</label>
+                <input type="number" class="form-input" id="inv-adjust-amount" placeholder="Bijv. 10 of -5" step="0.1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Reden</label>
+                <input type="text" class="form-input" id="inv-adjust-reason" placeholder="Bijv. Nieuw besteld">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="doAdjustInventory('${id}')">Opslaan</button>
+        `);
+    }
+
+    async function doAdjustInventory(id) {
+        try {
+            await api(`/api/inventory/${id}/adjust`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    amount: parseFloat(document.getElementById('inv-adjust-amount').value),
+                    reason: document.getElementById('inv-adjust-reason').value
+                })
+            });
+            toast('Voorraad aangepast');
+            closeModal();
+            renderInventory();
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    function showAddInventory() {
+        showModal(`
+            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">Nieuw voorraaditem</h2>
+            <div class="form-group">
+                <label class="form-label">Naam</label>
+                <input type="text" class="form-input" id="inv-new-name" placeholder="Product naam">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Aantal</label>
+                    <input type="number" class="form-input" id="inv-new-qty" value="0" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Eenheid</label>
+                    <select class="form-select" id="inv-new-unit">
+                        <option value="L">Liters</option>
+                        <option value="stuks">Stuks</option>
+                        <option value="rollen">Rollen</option>
+                        <option value="kg">Kilogram</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Minimumdrempel</label>
+                <input type="number" class="form-input" id="inv-new-threshold" value="5" step="0.1">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="doAddInventory()">Toevoegen</button>
+        `);
+    }
+
+    async function doAddInventory() {
+        try {
+            await api('/api/inventory', {
+                method: 'POST',
+                body: JSON.stringify({
+                    item_name: document.getElementById('inv-new-name').value,
+                    quantity_on_hand: parseFloat(document.getElementById('inv-new-qty').value),
+                    unit: document.getElementById('inv-new-unit').value,
+                    threshold_warning: parseFloat(document.getElementById('inv-new-threshold').value)
+                })
+            });
+            toast('Item toegevoegd');
+            closeModal();
+            renderInventory();
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SETTINGS
+       ═══════════════════════════════════════════════════════════════ */
+    async function renderSettings() {
+        const mc = document.getElementById('main-content');
+        mc.innerHTML = '<div class="spinner"></div>';
+
+        try {
+            const settings = await api('/api/settings');
+            mc.innerHTML = `
+                <button class="page-back" onclick="navigate('dashboard')">← Terug</button>
+                <h1 class="page-title mb-4">⚙️ Instellingen</h1>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">Bedrijfsgegevens</div>
+                    <div class="form-group">
+                        <label class="form-label">Bedrijfsnaam</label>
+                        <input type="text" class="form-input" id="set-name" value="${settings.company_name || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Adres</label>
+                        <input type="text" class="form-input" id="set-address" value="${settings.company_address || ''}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Telefoon</label>
+                            <input type="tel" class="form-input" id="set-phone" value="${settings.company_phone || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">E-mail</label>
+                            <input type="email" class="form-input" id="set-email" value="${settings.company_email || ''}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">KVK-nummer</label>
+                            <input type="text" class="form-input" id="set-kvk" value="${settings.company_kvk || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">BTW-ID</label>
+                            <input type="text" class="form-input" id="set-btw-id" value="${settings.company_btw_id || ''}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">IBAN</label>
+                        <input type="text" class="form-input" id="set-iban" value="${settings.company_iban || ''}">
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">Facturatie</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">BTW Percentage</label>
+                            <input type="number" class="form-input" id="set-btw" value="${settings.btw_percentage || 21}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Offerte prefix</label>
+                            <input type="text" class="form-input" id="set-est-prefix" value="${settings.estimate_prefix || 'OFF'}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">Diensten beheren</div>
+                    <div id="services-list"></div>
+                    <button class="btn btn-outline btn-block btn-sm mt-2" onclick="showAddService()">+ Dienst toevoegen</button>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">Upsell items beheren</div>
+                    <div id="upsells-list"></div>
+                    <button class="btn btn-outline btn-block btn-sm mt-2" onclick="showAddUpsell()">+ Upsell toevoegen</button>
+                </div>
+
+                <button class="btn btn-primary btn-block btn-lg mt-4" onclick="saveSettings()">💾 Instellingen opslaan</button>
+            `;
+            renderServicesList();
+            renderUpsellsList();
+        } catch (e) {
+            mc.innerHTML = `<div class="empty-state"><div class="empty-text">${e.message}</div></div>`;
+        }
+    }
+
+    function renderServicesList() {
+        const list = document.getElementById('services-list');
+        if (!list) return;
+        list.innerHTML = cachedServices.map(s => `
+            <div class="list-item" style="cursor:default">
+                <div class="list-content">
+                    <div class="list-title">${s.name}</div>
+                    <div class="list-subtitle">€${parseFloat(s.price_per_unit).toFixed(2)} per ${s.unit_type} · Zwaar: ${s.heavy_multiplier}x</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderUpsellsList() {
+        const list = document.getElementById('upsells-list');
+        if (!list) return;
+        list.innerHTML = cachedUpsells.map(u => `
+            <div class="list-item" style="cursor:default">
+                <div class="list-content">
+                    <div class="list-title">${u.name}</div>
+                    <div class="list-subtitle">€${parseFloat(u.price).toFixed(2)}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function showAddService() {
+        showModal(`
+            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">Nieuwe dienst</h2>
+            <div class="form-group">
+                <label class="form-label">Naam</label>
+                <input type="text" class="form-input" id="svc-name" placeholder="Bijv. Dakgoot reinigen">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Prijs per eenheid</label>
+                    <input type="number" class="form-input" id="svc-price" step="0.01" value="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Eenheid</label>
+                    <select class="form-select" id="svc-unit">
+                        <option value="m2">m²</option>
+                        <option value="stuk">stuk</option>
+                        <option value="meter">meter</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Zwaar-toeslag factor</label>
+                <input type="number" class="form-input" id="svc-heavy" step="0.1" value="1.3">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="doAddService()">Toevoegen</button>
+        `);
+    }
+
+    async function doAddService() {
+        try {
+            await api('/api/services', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: document.getElementById('svc-name').value,
+                    price_per_unit: parseFloat(document.getElementById('svc-price').value),
+                    unit_type: document.getElementById('svc-unit').value,
+                    heavy_multiplier: parseFloat(document.getElementById('svc-heavy').value)
+                })
+            });
+            toast('Dienst toegevoegd');
+            closeModal();
+            await loadServices();
+            renderServicesList();
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    function showAddUpsell() {
+        showModal(`
+            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">Nieuw upsell item</h2>
+            <div class="form-group">
+                <label class="form-label">Naam</label>
+                <input type="text" class="form-input" id="ups-name" placeholder="Bijv. Dakgoot spoelen">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Prijs</label>
+                <input type="number" class="form-input" id="ups-price" step="0.01" value="0">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="doAddUpsell()">Toevoegen</button>
+        `);
+    }
+
+    async function doAddUpsell() {
+        try {
+            await api('/api/upsells', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: document.getElementById('ups-name').value,
+                    price: parseFloat(document.getElementById('ups-price').value)
+                })
+            });
+            toast('Upsell toegevoegd');
+            closeModal();
+            await loadUpsells();
+            renderUpsellsList();
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    async function saveSettings() {
+        try {
+            await api('/api/settings', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    company_name: document.getElementById('set-name').value,
+                    company_address: document.getElementById('set-address').value,
+                    company_phone: document.getElementById('set-phone').value,
+                    company_email: document.getElementById('set-email').value,
+                    company_kvk: document.getElementById('set-kvk').value,
+                    company_btw_id: document.getElementById('set-btw-id').value,
+                    company_iban: document.getElementById('set-iban').value,
+                    btw_percentage: document.getElementById('set-btw').value,
+                    estimate_prefix: document.getElementById('set-est-prefix').value,
+                })
+            });
+            toast('Instellingen opgeslagen!');
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MODAL SYSTEM
+       ═══════════════════════════════════════════════════════════════ */
+    function showModal(content) {
+        const root = document.getElementById('modal-root');
+        root.innerHTML = `
+            <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+                <div class="modal-content">
+                    <div class="modal-handle"></div>
+                    ${content}
+                </div>
+            </div>
+        `;
+    }
+
+    function closeModal() {
+        document.getElementById('modal-root').innerHTML = '';
+    }
+    </script>
+</body>
+</html>
